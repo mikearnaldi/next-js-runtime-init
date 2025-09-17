@@ -1,23 +1,30 @@
-import { layer } from "@/runtime";
+import { client, server } from "@/services";
 import { ManagedRuntime } from "effect";
 
 const initRuntime = () => {
-  const runtime = ManagedRuntime.make(layer);
+  const serverRuntime = ManagedRuntime.make(server);
+  const clientRuntime = ManagedRuntime.make(client, serverRuntime.memoMap);
   // @ts-expect-error
-  global.runSync = runtime.runSync;
+  globalThis.serverRuntime = serverRuntime;
   // @ts-expect-error
-  global.runPromise = runtime.runPromise;
-  return runtime
+  globalThis.clientRuntime = clientRuntime;
+  return [serverRuntime, clientRuntime] as const;
 };
 
 declare global {
-  const runPromise: ReturnType<typeof initRuntime>["runPromise"];
-  const runSync: ReturnType<typeof initRuntime>["runSync"];
+  const serverRuntime: ReturnType<typeof initRuntime>[0];
+  const clientRuntime: ReturnType<typeof initRuntime>[1];
 }
 
 export function register() {
   const runtime = initRuntime();
 
-  process.on("SIGTERM", () => runtime.dispose())
-  process.on("SIGINT", () => runtime.dispose())
+  process.on("SIGTERM", () => {
+    runtime[0].dispose();
+    runtime[1].dispose();
+  });
+  process.on("SIGINT", () => {
+    runtime[0].dispose();
+    runtime[1].dispose();
+  });
 }

@@ -1,11 +1,13 @@
-import { MyService } from "@/runtime";
+import { MyService } from "@/services";
+import { Hello } from "../component";
 
 export default function Home() {
-  runSync(MyService.logHello);
+  serverRuntime.runSync(MyService.logHello);
   return (
     <>
       <div>Foo</div>
       <a href="/bar">to bar</a>
+      <Hello />
     </>
   );
 }
