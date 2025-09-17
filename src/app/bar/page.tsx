@@ -1,11 +1,11 @@
 import { MyService } from "@/runtime";
 
 export default function Home() {
-  runSync(MyService.logHello)
+  runSync(MyService.logHello);
   return (
     <>
-      <div>home</div>
-      <a href="/foo">to foo</a>
+      <div>Bar</div>
+      <a href="/">to home</a>
     </>
   );
 }
